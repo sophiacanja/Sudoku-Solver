@@ -4,7 +4,7 @@
 
 using namespace std; 
 
-void printSudokuBoard(int arr[9][9])                //prints out the 2D array declared in main
+void printSudokuBoard(int arr[9][9])                       //prints out the 2D array declared in main
 {
     cout << "--------------------------" << endl;
 
@@ -21,6 +21,7 @@ void printSudokuBoard(int arr[9][9])                //prints out the 2D array de
 
 bool canPlace(int arr[9][9], int row, int col, int n)       //this returns true if a given number is not found within a specific row, column, and grid 
 {
+    
     if(arr[row][col]!= 0)                                   //checks if current cell is not empty
         return false; 
     bool status = true; 
@@ -44,23 +45,23 @@ vector<int> findPlaceables(int arr[9][9], int r, int c)     //creates a vector t
 {
     vector<int> cps = {};
     for( int i = 1; i <=9; i++){
-        if(canPlace(arr, r, c, i))
-        cps.push_back(i);
+        if(canPlace(arr, r, c, i))                          //checks if number i can be placed in a cell
+        cps.push_back(i);                                   //stores number into vector
     }
     return cps;
 }
 
-void copyArr(int arr[9][9], int duplicate[9][9])      //creates a duplicate of the 9x9 array
+void copyArr(int arr[9][9], int duplicate[9][9])            //creates a duplicate of the 9x9 array
 {
-    for(int y = 0; y < 9; y++)
-        for( int x = 0; x < 9; x++)
-            duplicate[y][x] = arr[y][x];
+    for(int x = 0; x < 9; x++)
+        for( int y = 0; y < 9; y++)
+            duplicate[x][y] = arr[x][y];
 }
 
-void nextEmpty(int arr[9][9], int row, int col, int &nextRow, int &nextCol)
+void nextEmpty(int arr[9][9], int row, int col, int &nextRow, int &nextCol)     //finds next available empty cell 
 {
-    int index = 9*9; 
-    for(int i = row * 9 + col + 1; i < 9*9; i++){
+    int index = 9 * 9; 
+    for(int i = row * 9 + col + 1; i < 9 * 9; i++){
         if(arr[i / 9][i % 9]==0){
             index = i;
             break;
@@ -69,39 +70,39 @@ void nextEmpty(int arr[9][9], int row, int col, int &nextRow, int &nextCol)
     nextRow = index / 9;
     nextCol = index % 9;
 }
-bool solveSudoku(int arr[9][9], int row, int col) 
+bool solveSudoku(int arr[9][9], int row, int col)           //uses recursion to solve sudoku puzzle 
 {
-    if(row > 8)                                 //checks if all rows are filled
+    if(row > 8)                                             //checks if all rows are filled and puzzle is completed
         return true;
 
-    if(arr[row][col] != 0){                     
+    if(arr[row][col] != 0){                                 //checks if current cell is filled      
         int nextCol, nextRow; 
-        nextEmpty(arr, row, col, nextRow, nextCol);
-        return solveSudoku(arr, nextRow, nextCol);
+        nextEmpty(arr, row, col, nextRow, nextCol);         //calls method to find next available cell 
+        return solveSudoku(arr, nextRow, nextCol);          //uses recursion to evaluate the next available cell
     }
 
     vector<int> placeables = findPlaceables(arr, row, col);
     
-    if (placeables.size() == 0)                 //checks if row is full 
+    if (placeables.size() == 0)                             //checks if row is full 
         return false;
 
     bool status = false; 
 
-    for(int i = 0; i < placeables.size(); i++){
-        int n = placeables[i]; 
+    for(int i = 0; i < placeables.size(); i++){             //loops through all placeables 
+        int n = placeables[i];                              //sets first value in vector as n
         int arrCpy[9][9];
-        copyArr(arr, arrCpy);
-        arrCpy[row][col] = n; 
+        copyArr(arr, arrCpy);                               //copies array to test out the different variations
+        arrCpy[row][col] = n;                               //sets n as a possible solution to a specific cell
         int nextCol, nextRow;
-        nextEmpty(arrCpy, row, col, nextRow, nextCol);
-        if(solveSudoku(arrCpy, nextRow, nextCol))
+        nextEmpty(arrCpy, row, col, nextRow, nextCol);      //finds the next empty cell
+        if(solveSudoku(arrCpy, nextRow, nextCol))           //uses recursion to evaluate the right values for all 0-8 rows
         {
-            copyArr(arrCpy, arr);
+            copyArr(arrCpy, arr);                           //when all the rows are filled, it sets the copied array to the original array
             status = true;
             break;
         }
     }
-
+    
     return status;
 }
 
@@ -122,10 +123,8 @@ int main()
     };
 
 
-
-
     printSudokuBoard(board); 
-    solveSudoku(board, 0,0);
+    solveSudoku(board, 0, 0);
     printSudokuBoard(board);
 
     return 0;
